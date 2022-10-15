@@ -1,6 +1,10 @@
 {% extends 'base.html' %}
 {% block content %}
-    <h2 class="text_center">{{user.username}}</h2>
+    <h2 class="text-center">{{user.username}}</h2>
+
+    {% if request.user.id == user.id %}
+        <a href="{% url 'home:post_create' %}" class="btn btn-primary">Craete</a>
+    {% endif %}
 
     <div class="card">
         {% for post in posts %}
