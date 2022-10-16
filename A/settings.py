@@ -23,9 +23,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-q81+anp#c@(x6@vt-#c@*s68e96)7&jgnt0#dy#8p3e+me^tk*'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -131,3 +131,14 @@ AUTHENTICATION_BACKENDS = [
 
 LOGIN_URL = '/account/login'
 
+
+# Google Account
+
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'sanrir3@gmail.com'
+EMAIL_PORT = 587
+EMAIL_HOST_PASSWORD = 'edwizthshphchqpc'
+EMAIL_USE_TLS = True
+DEFAULT_FROM_EMAIL = 'Gomnam website'
