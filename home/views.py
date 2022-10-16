@@ -3,7 +3,11 @@ from django.views import View
 from .models import Post
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
+<<<<<<< HEAD
 from .forms import PostCreateUpdateForm
+=======
+from .forms import PostUpdateForm
+>>>>>>> 29c2c2827f4578999d08391b91d02fb6600ebf60
 from django.utils.text import slugify
 
 # Create your views here.
@@ -35,6 +39,10 @@ class PostUpdateView(LoginRequiredMixin, View):
         self.post_instance = Post.objects.get(pk=kwargs['post_id'])
         return super().setup(request, *args, **kwargs)
 
+    def setup(self, request, *args, **kwargs):
+        self.post_instance = Post.objects.get(pk=kwargs['post_id'])
+        return super().setup(request, *args, **kwargs)
+
     def dispatch(self, request, *args, **kwargs):
         post = self.post_instance
         if not post.user.id == request.user.id:
@@ -57,6 +65,7 @@ class PostUpdateView(LoginRequiredMixin, View):
             new_post.save()
             messages.success(request,'you updated this post', 'success')
             return redirect('home:post_detail', post.id, post.slug)
+<<<<<<< HEAD
 
 class PostCreateView(LoginRequiredMixin, View):
     form_class = PostCreateUpdateForm
@@ -77,6 +86,8 @@ class PostCreateView(LoginRequiredMixin, View):
 
 
 
+=======
+>>>>>>> 29c2c2827f4578999d08391b91d02fb6600ebf60
 
 
 
