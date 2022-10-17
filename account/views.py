@@ -9,6 +9,7 @@ from home.models import Post
 from django.contrib.auth import views as auth_views
 from django.urls import reverse_lazy
 
+
 # Create your views here.
 
 
@@ -48,7 +49,8 @@ class UserLoginView(View):
 
     def get(self, request):
         form = self.form_class
-        return render(request, self.template_name, {'form':form})
+        return render(request, self.template_name, {'form': form})
+
     def post(self, request):
         form = self.form_class(request.POST)
         if form.is_valid():
@@ -59,10 +61,10 @@ class UserLoginView(View):
                 messages.success(request, 'ypu logged in successfully', 'success')
                 return redirect('home:home')
             messages.error(request, 'username or password is wrong', 'warning')
-        return render(request, self.template_name, {'form':form})
+        return render(request, self.template_name, {'form': form})
 
 
-class UserLogoutView(LoginRequiredMixin,View):
+class UserLogoutView(LoginRequiredMixin, View):
 
     def get(self, requset):
         logout(requset)
@@ -74,10 +76,23 @@ class UserProfileView(LoginRequiredMixin, View):
     def get(self, request, user_id):
         user = get_object_or_404(User, pk=user_id)
         posts = Post.objects.filter(user=user)
-        return render(request, 'account/profile.html', {'user':user, 'posts':posts})
+        return render(request, 'account/profile.html', {'user': user, 'posts': posts})
 
 
 class UserPasswordResetView(auth_views.PasswordResetView):
     template_name = 'account/password_reset_form.html'
     success_url = reverse_lazy('account:password_reset_done')
     email_template_name = 'account/password_reset_email.html'
+
+
+class UserPasswordResetDoneView(auth_views.PasswordResetDoneView):
+    template_name = 'account/password_reset_done.html'
+
+
+class PasswordResetConfirmView(auth_views.PasswordResetConfirmView):
+    template_name = 'account/password_reset_confirm.html'
+    success_url = reverse_lazy('account:password_reset_complate')
+
+
+class PasswordResetComplateView(auth_views.PasswordResetCompleteView):
+    template_name = 'account/password_reset_complate.html'

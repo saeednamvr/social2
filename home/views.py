@@ -79,5 +79,5 @@ class PostCreateView(LoginRequiredMixin, View):
             new_post.save()
             messages.success(request, 'you created a new post', 'success')
             return redirect('home:post_detail', new_post.id, new_post.slug)
-            return redirect('home:post_detail', new_post.id, new_post.slug)
+
 
