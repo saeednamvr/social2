@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
-from .forms import UserRegisterationForm, UserLoginForm
+from .forms import UserRegisterationForm, UserLoginForm, EditUserForm
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
@@ -32,7 +32,8 @@ class UserRegisterView(View):
         form = self.form_class(request.POST)
         if form.is_valid():
             cd = form.cleaned_data
-            User.objects.create_user(cd['username'], cd['email'], cd['password1'])
+            # user = User.objects.create_user(cd['username'], cd['email'], cd['password1'])
+            # Profile.objects.create(user=user)
             messages.success(request, 'you registered successfully', 'success')
             return redirect('home:home')
         return render(request, self.template_name, {'form': form})
@@ -42,7 +43,7 @@ class UserLoginView(View):
     form_class = UserLoginForm
     template_name = 'account/login.html'
 
-    def setup(self,request, *args, **kwargs):
+    def setup(self, request, *args, **kwargs):
         self.next = request.GET.get('next')
         return super().setup(request, *args, **kwargs)
 
@@ -83,10 +84,10 @@ class UserProfileView(LoginRequiredMixin, View):
         is_following = False
         user = get_object_or_404(User, pk=user_id)
         posts = user.posts.all()
-        relation = Relation.objects.filter(from_user=request.user,to_user=user)
+        relation = Relation.objects.filter(from_user=request.user, to_user=user)
         if relation.exists():
             is_following = True
-        return render(request, 'account/profile.html', {'user': user, 'posts': posts, 'is_following':is_following})
+        return render(request, 'account/profile.html', {'user': user, 'posts': posts, 'is_following': is_following})
 
 
 class UserPasswordResetView(auth_views.PasswordResetView):
@@ -100,34 +101,50 @@ class UserPasswordResetDoneView(auth_views.PasswordResetDoneView):
 
 
 class UserPasswordResetConfirmView(auth_views.PasswordResetConfirmView):
-	template_name = 'account/password_reset_confirm.html'
-	success_url = reverse_lazy('account:password_reset_complate')
+    template_name = 'account/password_reset_confirm.html'
+    success_url = reverse_lazy('account:password_reset_complate')
 
 
 class UserPasswordResetComplateView(auth_views.PasswordResetCompleteView):
     template_name = 'account/password_reset_complate.html'
 
 
-class UserFollowView(LoginRequiredMixin,View):
+class UserFollowView(LoginRequiredMixin, View):
     def get(self, request, user_id):
         user = User.objects.get(id=user_id)
         relation = Relation.objects.filter(from_user=request.user, to_user=user)
         if relation.exists():
-            messages.error(request,'ypu are already followin this user','danger')
+            messages.error(request, 'ypu are already followin this user', 'danger')
         else:
             Relation(from_user=request.user, to_user=user).save()
-            messages.success(request,'you followed this user', 'success')
-        return redirect('account:user_profile',user.id)
-
+            messages.success(request, 'you followed this user', 'success')
+        return redirect('account:user_profile', user.id)
 
 
 class UserUnFollowView(LoginRequiredMixin, View):
-    def get(self,request, user_id):
+    def get(self, request, user_id):
         user = User.objects.get(id=user_id)
         relation = Relation.objects.filter(from_user=request.user, to_user=user)
         if relation.exists():
             relation.delete()
-            messages.success(request,'you unfollowed this user', 'success')
+            messages.success(request, 'you unfollowed this user', 'success')
         else:
-            messages.error(request,'you are not followin this user', 'danger')
+            messages.error(request, 'you are not followin this user', 'danger')
         return redirect('account:user_profile', user.id)
+
+
+class EditUserView(LoginRequiredMixin, View):
+    form_class = EditUserForm
+
+    def get(self, request):
+        form = self.form_class(instance=request.user.profile, initial={'email': request.user.email})
+        return render(request, 'account/edit_profile.html', {'form': form})
+
+    def post(self, request):
+        form = self.form_class(request.POST, instance=request.user.profile)
+        if form.is_valid():
+            form.save()
+            request.user.email = form.cleaned_data['email']
+            request.user.save()
+            messages.success(request, 'profile edited successfully', 'success')
+        return redirect('account:user_profile', request.user.id)

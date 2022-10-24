@@ -135,4 +135,3 @@ class PostLikeView(LoginRequiredMixin, View):
             Vote.objects.create(post=post, user=request.user)
             messages.success(request, 'you liked this post', 'success')
         return redirect('home:post_detail', post.id, post.slug)
-
